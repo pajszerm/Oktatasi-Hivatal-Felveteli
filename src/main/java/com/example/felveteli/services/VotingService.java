@@ -5,6 +5,7 @@ import com.example.felveteli.domain.Vote;
 import com.example.felveteli.domain.Voting;
 import com.example.felveteli.domain.dto.incoming.CreateVoteDto;
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
+import com.example.felveteli.domain.dto.outgoing.RepresentativeAvgVotingResponse;
 import com.example.felveteli.domain.dto.outgoing.VoteResponse;
 import com.example.felveteli.domain.dto.outgoing.VotingResultResponse;
 import com.example.felveteli.domain.dto.outgoing.dailyvotingresponse.DailyVotingResponse;
@@ -194,5 +195,32 @@ public class VotingService {
             dailyVotingResponse.getSzavazasok().add(dailyVotingResponseItem);
         }
         return dailyVotingResponse;
+    }
+
+    public RepresentativeAvgVotingResponse createRepresentativeAvgVotingResponse(String startDate, String endDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startLocalDate = LocalDate.parse(startDate, formatter);
+        LocalDate endLocalDate = LocalDate.parse(endDate, formatter);
+        LocalDateTime startDateTime = startLocalDate.atStartOfDay();
+        LocalDateTime endDateTime = endLocalDate.atTime(LocalTime.MAX);
+        VotingType votingType = VotingType.j;
+        List<Voting> votingsInPeriod = votingRepository.findVotingsInPeriod(startDateTime, endDateTime, votingType);
+        double avgVoting = getAvgVoting(votingsInPeriod);
+        RepresentativeAvgVotingResponse representativeAvgVotingResponse = new RepresentativeAvgVotingResponse();
+        representativeAvgVotingResponse.setAtlag(avgVoting);
+        return representativeAvgVotingResponse;
+    }
+
+    private double getAvgVoting(List<Voting> votingsInPeriod) {
+        int allRepresentatives = sumRepresentatives(votingsInPeriod);
+        double avg = (double) allRepresentatives / votingsInPeriod.size();
+        double avgTwoDecimal = (double) Math.round(avg * 100) / 100;
+        return avgTwoDecimal;
+    }
+
+    private int sumRepresentatives(List<Voting> votingsInPeriod) {
+        return votingsInPeriod.stream()
+                .mapToInt(voting -> voting.getVotes().size())
+                .sum();
     }
 }

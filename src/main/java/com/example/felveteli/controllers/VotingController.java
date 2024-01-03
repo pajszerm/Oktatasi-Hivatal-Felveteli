@@ -1,6 +1,7 @@
 package com.example.felveteli.controllers;
 
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
+import com.example.felveteli.domain.dto.outgoing.RepresentativeAvgVotingResponse;
 import com.example.felveteli.domain.dto.outgoing.VoteResponse;
 import com.example.felveteli.domain.dto.outgoing.VotingResultResponse;
 import com.example.felveteli.domain.dto.outgoing.dailyvotingresponse.DailyVotingResponse;
@@ -85,5 +86,14 @@ public class VotingController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/kepviselo-reszvetel-atlag/{idoszak-kezdete}/{idoszak-vege}")
+    public ResponseEntity<RepresentativeAvgVotingResponse> getRepresentativeAvgVoting(
+            @PathVariable("idoszak-kezdete") String idoszakkezdete,
+            @PathVariable("idoszak-vege") String idoszakVege) {
+        RepresentativeAvgVotingResponse representativeAvgVotingResponse =
+                votingService.createRepresentativeAvgVotingResponse(idoszakkezdete, idoszakVege);
+        return new ResponseEntity<>(representativeAvgVotingResponse, HttpStatus.OK);
     }
 }

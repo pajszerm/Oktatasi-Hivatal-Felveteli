@@ -27,4 +27,12 @@ public interface VotingRepository extends JpaRepository<Voting, Long> {
     @Query("SELECT v FROM Voting v WHERE v.dateTime >= :startOfDay AND v.dateTime <= :endOfDay")
     List<Voting> findVotingsByDate(@Param("startOfDay") LocalDateTime startOfDay,
                                    @Param("endOfDay") LocalDateTime endOfDay);
+
+    @Query("SELECT v FROM Voting v WHERE" +
+            " v.votingType != :votingType AND " +
+            "(v.dateTime >= :startDateTime AND v.dateTime <= :endDateTime)")
+    List<Voting> findVotingsInPeriod(@Param("startDateTime") LocalDateTime startDateTime,
+                                     @Param("endDateTime") LocalDateTime endDateTime,
+                                     @Param("votingType") VotingType votingType);
+
 }
