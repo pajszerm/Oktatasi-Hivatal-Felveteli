@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface VotingRepository extends JpaRepository<Voting, Long> {
@@ -22,4 +23,8 @@ public interface VotingRepository extends JpaRepository<Voting, Long> {
             " ORDER BY v.dateTime DESC LIMIT 1")
     Voting findNextAttendanceVotingBeforeDateTime(@Param("dateTime") LocalDateTime dateTime,
                                                   @Param("votingType") VotingType votingType);
+
+    @Query("SELECT v FROM Voting v WHERE v.dateTime >= :startOfDay AND v.dateTime <= :endOfDay")
+    List<Voting> findVotingsByDate(@Param("startOfDay") LocalDateTime startOfDay,
+                                   @Param("endOfDay") LocalDateTime endOfDay);
 }

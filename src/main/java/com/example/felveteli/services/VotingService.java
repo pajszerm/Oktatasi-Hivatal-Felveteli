@@ -7,6 +7,9 @@ import com.example.felveteli.domain.dto.incoming.CreateVoteDto;
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
 import com.example.felveteli.domain.dto.outgoing.VoteResponse;
 import com.example.felveteli.domain.dto.outgoing.VotingResultResponse;
+import com.example.felveteli.domain.dto.outgoing.dailyvotingresponse.DailyVotingResponse;
+import com.example.felveteli.domain.dto.outgoing.dailyvotingresponse.DailyVotingResponseItem;
+import com.example.felveteli.domain.dto.outgoing.dailyvotingresponse.DailyVotingResponseVoteItem;
 import com.example.felveteli.domain.enums.VoteOption;
 import com.example.felveteli.domain.enums.VotingResult;
 import com.example.felveteli.domain.enums.VotingType;
@@ -15,8 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -152,5 +158,41 @@ public class VotingService {
         } else {
             votingResultResponse.setEredmeny(VotingResult.U);
         }
+    }
+
+    public DailyVotingResponse createDailyVotingResponse(String inputDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.parse(inputDate, formatter);
+        LocalDateTime startOfDay = localDate.atStartOfDay();
+        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+        List<Voting> votingsOnTheSameDay = votingRepository.findVotingsByDate(startOfDay, endOfDay);
+        if (votingsOnTheSameDay.isEmpty()) {
+            return null;
+        }
+        return createDailyVotingResponseItems(votingsOnTheSameDay);
+    }
+
+    private DailyVotingResponse createDailyVotingResponseItems(List<Voting> votingsOnTheSameDay) {
+        DailyVotingResponse dailyVotingResponse = new DailyVotingResponse();
+        for (Voting voting : votingsOnTheSameDay) {
+            VotingResultResponse votingResultResponse = createVotingResultResponse(voting.getId());
+            List<DailyVotingResponseVoteItem> voteItems = new ArrayList<>();
+            for (Vote vote : voting.getVotes()) {
+                DailyVotingResponseVoteItem voteItem = new DailyVotingResponseVoteItem();
+                voteItem.setSzavazat(vote.getVoteOption());
+                voteItem.setKepviselo(vote.getRepresentative().getName());
+                voteItems.add(voteItem);
+            }
+            DailyVotingResponseItem dailyVotingResponseItem = new DailyVotingResponseItem();
+            dailyVotingResponseItem.setIdopont(voting.getDateTime().toString());
+            dailyVotingResponseItem.setTargy(voting.getSubject());
+            dailyVotingResponseItem.setTipus(voting.getVotingType());
+            dailyVotingResponseItem.setElnok(voting.getChairman().getName());
+            dailyVotingResponseItem.setEredmeny(votingResultResponse.getEredmeny());
+            dailyVotingResponseItem.setKepviselokSzama(voting.getVotes().size());
+            dailyVotingResponseItem.setSzavazatok(voteItems);
+            dailyVotingResponse.getSzavazasok().add(dailyVotingResponseItem);
+        }
+        return dailyVotingResponse;
     }
 }

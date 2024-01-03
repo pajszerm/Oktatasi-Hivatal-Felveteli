@@ -3,6 +3,7 @@ package com.example.felveteli.controllers;
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
 import com.example.felveteli.domain.dto.outgoing.VoteResponse;
 import com.example.felveteli.domain.dto.outgoing.VotingResultResponse;
+import com.example.felveteli.domain.dto.outgoing.dailyvotingresponse.DailyVotingResponse;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponse;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponseError;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponseSuccess;
@@ -73,5 +74,16 @@ public class VotingController {
             return new ResponseEntity<>(votingResultResponse, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/{napi-szavazasok}")
+    public ResponseEntity<DailyVotingResponse> getVotingListByDay(
+            @PathVariable("napi-szavazasok") String napiSzavazasok) {
+        DailyVotingResponse dailyVotingResponse = votingService.createDailyVotingResponse(napiSzavazasok);
+        if (dailyVotingResponse != null) {
+            return new ResponseEntity<>(dailyVotingResponse, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
