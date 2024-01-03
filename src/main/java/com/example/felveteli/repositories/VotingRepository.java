@@ -1,6 +1,7 @@
 package com.example.felveteli.repositories;
 
 import com.example.felveteli.domain.Voting;
+import com.example.felveteli.domain.enums.VotingType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +11,15 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface VotingRepository extends JpaRepository<Voting, Long> {
-
     @Query("SELECT v FROM Voting v WHERE v.dateTime = :localDateTime")
     Voting findVotingByDateTime(@Param("localDateTime") LocalDateTime localDateTime);
+
+    @Query("SELECT v FROM Voting v WHERE v.id =:id")
+    Voting findVotingById(@Param("id") long id);
+
+    @Query("SELECT v FROM  Voting  v WHERE" +
+            " v.dateTime < :dateTime AND v.votingType = :votingType" +
+            " ORDER BY v.dateTime DESC LIMIT 1")
+    Voting findNextAttendanceVotingBeforeDateTime(@Param("dateTime") LocalDateTime dateTime,
+                                                  @Param("votingType") VotingType votingType);
 }

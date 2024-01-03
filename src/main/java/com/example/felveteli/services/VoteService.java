@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class VoteService {
@@ -23,5 +25,9 @@ public class VoteService {
 
     public Vote findVoteByVotingIdAndRepresentativeName(long votingId, String representativeName) {
         return voteRepository.findVoteByVotingIdAndRepresentativeName(votingId, representativeName);
+    }
+
+    public List<Vote> findVotesByVoting(long id) {
+        return voteRepository.findVotesByVotingId(id);
     }
 }

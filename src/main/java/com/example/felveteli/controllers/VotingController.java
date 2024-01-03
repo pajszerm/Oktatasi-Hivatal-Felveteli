@@ -2,6 +2,7 @@ package com.example.felveteli.controllers;
 
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
 import com.example.felveteli.domain.dto.outgoing.VoteResponse;
+import com.example.felveteli.domain.dto.outgoing.VotingResultResponse;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponse;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponseError;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponseSuccess;
@@ -57,11 +58,19 @@ public class VotingController {
     @GetMapping("/szavazat/{szavazas}/{kepviselo}")
     public ResponseEntity<VoteResponse> getVoteOfRepresentative(
             @PathVariable("szavazas") long szavazas,
-            @PathVariable("kepviselo") String kepviselo)
-    {
+            @PathVariable("kepviselo") String kepviselo) {
         VoteResponse voteResponse = votingService.createVoteResponse(szavazas, kepviselo);
         if (voteResponse != null) {
             return new ResponseEntity<>(voteResponse, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/eredmeny/{szavazas}")
+    public ResponseEntity<VotingResultResponse> getResultOfVoting(@PathVariable long szavazas) {
+        VotingResultResponse votingResultResponse = votingService.createVotingResultResponse(szavazas);
+        if (votingResultResponse != null) {
+            return new ResponseEntity<>(votingResultResponse, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
