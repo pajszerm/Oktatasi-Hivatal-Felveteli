@@ -5,6 +5,7 @@ import com.example.felveteli.domain.Vote;
 import com.example.felveteli.domain.Voting;
 import com.example.felveteli.domain.dto.incoming.CreateVoteDto;
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
+import com.example.felveteli.domain.dto.outgoing.VoteResponse;
 import com.example.felveteli.repositories.VotingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,16 @@ public class VotingService {
         LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
         Voting voting = votingRepository.findVotingByDateTime(localDateTime);
         return voting != null;
+    }
+
+    public VoteResponse createVoteResponse(long votingId, String representativeName) {
+        Vote vote = voteService.findVoteByVotingIdAndRepresentativeName(votingId, representativeName);
+        if (vote != null) {
+            VoteResponse voteResponse = new VoteResponse();
+            voteResponse.setSzavazat(vote.getVoteOption());
+            return voteResponse;
+        }
+        return null;
     }
 
 }

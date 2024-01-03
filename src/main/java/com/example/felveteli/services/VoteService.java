@@ -20,4 +20,8 @@ public class VoteService {
     public void saveVote(Vote vote) {
         voteRepository.save(vote);
     }
+
+    public Vote findVoteByVotingIdAndRepresentativeName(long votingId, String representativeName) {
+        return voteRepository.findVoteByVotingIdAndRepresentativeName(votingId, representativeName);
+    }
 }

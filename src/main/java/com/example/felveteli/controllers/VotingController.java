@@ -1,6 +1,7 @@
 package com.example.felveteli.controllers;
 
 import com.example.felveteli.domain.dto.incoming.CreateVotingDto;
+import com.example.felveteli.domain.dto.outgoing.VoteResponse;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponse;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponseError;
 import com.example.felveteli.domain.dto.outgoing.votingresponse.VotingResponseSuccess;
@@ -51,5 +52,17 @@ public class VotingController {
         }
         String votingId = votingService.createAndSaveVoting(createVotingData);
         return new ResponseEntity<>(new VotingResponseSuccess(votingId), HttpStatus.OK);
+    }
+
+    @GetMapping("/szavazat/{szavazas}/{kepviselo}")
+    public ResponseEntity<VoteResponse> getVoteOfRepresentative(
+            @PathVariable("szavazas") long szavazas,
+            @PathVariable("kepviselo") String kepviselo)
+    {
+        VoteResponse voteResponse = votingService.createVoteResponse(szavazas, kepviselo);
+        if (voteResponse != null) {
+            return new ResponseEntity<>(voteResponse, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
