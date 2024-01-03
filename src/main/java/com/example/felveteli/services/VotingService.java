@@ -65,4 +65,11 @@ public class VotingService {
         return votingToSave;
     }
 
+    public boolean checkVotingDateTime(String dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
+        Voting voting = votingRepository.findVotingByDateTime(localDateTime);
+        return voting != null;
+    }
+
 }
